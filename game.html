@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CASE STUDY</title>
+    <script src="snake.js"></script>
+</head>
+<body background="ảnh%20rắn.jpg">
+<center>
+    <table style="background: white">
+        <tr>
+            <td>
+                <h2>Score</h2>
+                <h2 id="score"></h2>
+            </td>
+            <td>
+                <h2>Top1</h2>
+                <h3 id="max">0</h3>
+            </td>
+            <td>
+                <p>bóng nhỏ = +3 score</p>
+                <p>bóng nhỡ = +2 score</p>
+                <p>bóng lớn = +1 score</p>
+            </td>
+            <td>
+                <h3>Cắn vào đuôi = gameover</h3>
+            </td>
+
+        </tr>
+        <tr>
+            <td colspan="4">
+                <canvas id="canvas" width="800px" height="600px" style="background-color: black"></canvas>
+            </td>
+            <td><h3>history</h3>
+                <table style=" border: 2px solid blue">
+                    <tr>
+                        <td>UserName</td>
+                        <td>Score</td>
+                    </tr>
+                    <tbody id="tbody"></tbody>
+
+                </table>
+            </td>
+    </table>
+
+</center>
+
+</body>
+</html>
+<script>
+    let count = 0;
+    let rankList = [];
+    for (let i = 0; i < 10; i++) {
+        rankList.push([window.localStorage.getItem(`name${i}`), window.localStorage.getItem(`score${i}`)])
+    }
+    console.log(rankList)
+
+    document.getElementById('score').innerHTML = count;
+    const canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    let player = new Snack();
+    let circle = new RandomCircle(400, 300, 20);
+    let circle1 = new RandomCircle(20, 500, 10, 'blue');
+    let circle2 = new RandomCircle(400, 200, 30, 'gray');
+    let circle3 = new RandomCircle(400, 10, 20, 'lightblue');
+    let circle4 = new RandomCircle(700, 100, 30, 'yellow');
+    let dirtion = new Vecter2d(-1, 0);
+
+    function move() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = player.body.length - 1; i >= 1; i--) {
+            player.body[i].x = player.body[i - 1].x;
+            player.body[i].y = player.body[i - 1].y;
+        }
+        player.body[0].x += player.speed.x * unit;
+        player.body[0].y += player.speed.y * unit;
+        player.render(canvas)
+        circle.render(canvas);
+        circle1.render(canvas);
+        circle2.render(canvas);
+        circle3.render(canvas);
+        circle4.render(canvas);
+        player.handLeBound()
+
+        if (checkCrash(player.body[0], circle)) {
+            let randX = Math.floor(Math.random() * canvas.width);
+            let randY = Math.floor(Math.random() * canvas.height);
+            circle.y = randY;
+            circle.x = randX;
+            player.grow();
+            player.render(canvas);
+            count = count + 2;
+        }
+        if (checkCrash(player.body[0], circle1)) {
+            let randX = Math.floor(Math.random() * canvas.width);
+            let randY = Math.floor(Math.random() * canvas.height);
+            circle1.y = randY;
+            circle1.x = randX;
+            player.grow();
+            player.render(canvas);
+            count = count + 3;
+        }
+        if (checkCrash(player.body[0], circle2)) {
+            let randX = Math.floor(Math.random() * canvas.width);
+            let randY = Math.floor(Math.random() * canvas.height);
+            circle2.y = randY;
+            circle2.x = randX;
+            player.grow();
+            player.render(canvas);
+            count++
+        }
+        if (checkCrash(player.body[0], circle3)) {
+            let randX = Math.floor(Math.random() * canvas.width);
+            let randY = Math.floor(Math.random() * canvas.height);
+            circle3.y = randY;
+            circle3.x = randX;
+            player.grow();
+            player.render(canvas);
+            count = count + 2;
+        }
+        if (checkCrash(player.body[0], circle4)) {
+            let randX = Math.floor(Math.random() * canvas.width);
+            let randY = Math.floor(Math.random() * canvas.height);
+            circle4.y = randY;
+            circle4.x = randX;
+            player.grow();
+            player.render(canvas);
+            count++
+        }
+        for (let i = 1; i < player.body.length; i++) {
+            if (player.head.x == player.body[i].x && player.head.y == player.body[i].y) {
+                alert('gameover');
+                window.location.href = 'home.html';
+                for (let i = 0; i < 10; i++) {
+                    if (window.localStorage.getItem(`score${i}`) == null) {
+                        window.localStorage.setItem(`score${i}`, count);
+                        break;
+                    }
+                }
+                count = 0;
+                break;
+            }
+        }
+        document.getElementById('score').innerHTML = count;
+    }
+
+    setInterval(move, 100)
+
+    function checkCrash(obj1, obj2) {
+        let left1 = obj1.x - 20;
+        let right1 = obj1.x + 20;
+        let top1 = obj1.y - 20;
+        let bottom1 = obj1.y + 20;
+
+        let left2 = obj2.x - obj2.radius;
+        let right2 = obj2.x + obj2.radius;
+        let top2 = obj2.y - obj2.radius;
+        let bottom2 = obj2.y + obj2.radius;
+
+        if (left1 > right2 || right1 < left2 || top1 > bottom2 || bottom1 < top2) {
+            return false;
+        }
+        return true;
+    }
+
+
+    document.onkeydown = function (evt) {
+        switch (evt.keyCode) {
+            case LEFT:
+                if (dirtion.x === 1) break;
+                player.speed = new Vecter2d(-1, 0);
+                dirtion = new Vecter2d(-1, 0);
+                break;
+            case RIGHT:
+                if (dirtion.x === -1) break;
+                player.speed = new Vecter2d(1, 0);
+                dirtion = new Vecter2d(1, 0);
+                break;
+            case UP:
+                if (dirtion.y === 1) break;
+                player.speed = new Vecter2d(0, -1);
+                dirtion = new Vecter2d(0, -1);
+                break;
+            case DOWN:
+                if (dirtion.y === -1) break;
+                player.speed = new Vecter2d(0, 1);
+                dirtion = new Vecter2d(0, 1);
+                break;
+            default:
+                break;
+        }
+    }
+
+    function history() {
+        let drawTable = ''
+        for (let i = 0; i < 10; i++) {
+            for (let j = 0; j < 2; j++) {
+                if (rankList[i][j] != null && rankList[i][j + 1] != undefined) {
+                    drawTable += `
+<tr>
+<td>${rankList[i][j]}</td>
+<td>${rankList[i][j + 1]}</td>
+</tr>`
+                }
+
+            }
+        }
+        document.getElementById('tbody').innerHTML = drawTable;
+    }
+
+    history();
+
+    function topppp(){
+        let max = 0;
+        for (let i = 0;i<10;i++){
+            for (let j =0 ; j<2;j++){
+                if (max<parseInt(rankList[i][j+1])){
+                    max=parseInt(rankList[i][j+1])
+                }
+            }
+        }
+        document.getElementById('max').innerHTML = max;
+    }
+    topppp();
+
+</script>
