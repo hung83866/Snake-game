@@ -64,16 +64,35 @@
     let circle2 = new RandomCircle(400, 200, 30, 'gray');
     let circle3 = new RandomCircle(400, 10, 20, 'lightblue');
     let circle4 = new RandomCircle(700, 100, 30, 'yellow');
-    let dirtion = new Vecter2d(-1, 0);
+    let dirtion = new Vecter2d(1, 0);
+
+    function checkCrash(obj1, obj2) {
+        let left1 = obj1.x - 20;
+        let right1 = obj1.x + 20;
+        let top1 = obj1.y - 20;
+        let bottom1 = obj1.y + 20;
+
+        let left2 = obj2.x - obj2.radius;
+        let right2 = obj2.x + obj2.radius;
+        let top2 = obj2.y - obj2.radius;
+        let bottom2 = obj2.y + obj2.radius;
+
+        if (left1 > right2 || right1 < left2 || top1 > bottom2 || bottom1 < top2) {
+            return false;
+        }
+        return true;
+    }
 
     function move() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         for (let i = player.body.length - 1; i >= 1; i--) {
             player.body[i].x = player.body[i - 1].x;
             player.body[i].y = player.body[i - 1].y;
         }
         player.body[0].x += player.speed.x * unit;
         player.body[0].y += player.speed.y * unit;
+
         player.render(canvas)
         circle.render(canvas);
         circle1.render(canvas);
@@ -129,6 +148,7 @@
         }
         for (let i = 1; i < player.body.length; i++) {
             if (player.head.x == player.body[i].x && player.head.y == player.body[i].y) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 alert('gameover');
                 window.location.href = 'home.html';
                 for (let i = 0; i < 10; i++) {
@@ -145,24 +165,6 @@
     }
 
     setInterval(move, 100)
-
-    function checkCrash(obj1, obj2) {
-        let left1 = obj1.x - 20;
-        let right1 = obj1.x + 20;
-        let top1 = obj1.y - 20;
-        let bottom1 = obj1.y + 20;
-
-        let left2 = obj2.x - obj2.radius;
-        let right2 = obj2.x + obj2.radius;
-        let top2 = obj2.y - obj2.radius;
-        let bottom2 = obj2.y + obj2.radius;
-
-        if (left1 > right2 || right1 < left2 || top1 > bottom2 || bottom1 < top2) {
-            return false;
-        }
-        return true;
-    }
-
 
     document.onkeydown = function (evt) {
         switch (evt.keyCode) {
